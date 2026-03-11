@@ -1,0 +1,526 @@
+{
+  "info": {
+    "name": "Event Management Dashboard",
+    "_postman_id": "emd-collection-v1",
+    "description": "API collection for the Event Management Dashboard backend. Base URL is stored in the `baseUrl` collection variable (default: http://localhost:4000). Auth token is stored automatically via the cookie jar — enable 'Send cookies' in Postman settings.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string",
+      "description": "Set this after creating an event (copy the id from the Create Event response)"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string",
+      "description": "Set this from the List Notifications response"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register as User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new USER. The `role` field is optional and defaults to `USER`. Sets a `token` httpOnly cookie on success."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"user\": {\n    \"id\": \"uuid\",\n    \"email\": \"user@example.com\",\n    \"role\": \"USER\",\n    \"createdAt\": \"2026-03-11T00:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "409 Email already in use",
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"message\": \"Email already in use\"\n}"
+            },
+            {
+              "name": "400 Missing fields",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"message\": \"Email and password are required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register as Organizer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"organizer@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ORGANIZER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new ORGANIZER. Sets a `token` httpOnly cookie on success."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"user\": {\n    \"id\": \"uuid\",\n    \"email\": \"organizer@example.com\",\n    \"role\": \"ORGANIZER\",\n    \"createdAt\": \"2026-03-11T00:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with email and password. Sets the `token` httpOnly cookie on success."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"user\": {\n    \"id\": \"uuid\",\n    \"email\": \"user@example.com\",\n    \"role\": \"USER\",\n    \"createdAt\": \"2026-03-11T00:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "401 Invalid credentials",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"message\": \"Invalid credentials\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Returns the currently authenticated user. Requires the `token` cookie to be set (login first)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"user\": {\n    \"id\": \"uuid\",\n    \"email\": \"user@example.com\",\n    \"role\": \"USER\"\n  }\n}"
+            },
+            {
+              "name": "401 Not authenticated",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"message\": \"Not authenticated\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Clears the `token` cookie, ending the session."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"message\": \"Logged out\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "List All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"]
+            },
+            "description": "Public. Returns all events with organizer info and registration count."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Events (Organizer)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "my"]
+            },
+            "description": "ORGANIZER only. Returns all events created by the logged-in organizer."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "{{eventId}}"]
+            },
+            "description": "Public. Returns a single event by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Summit 2026\",\n  \"description\": \"Annual tech conference covering AI, cloud, and more.\",\n  \"date\": \"2026-06-15T09:00:00.000Z\",\n  \"capacity\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"]
+            },
+            "description": "ORGANIZER only. Creates a new event."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"event\": {\n    \"id\": \"uuid\",\n    \"title\": \"Tech Summit 2026\",\n    \"description\": \"Annual tech conference...\",\n    \"date\": \"2026-06-15T09:00:00.000Z\",\n    \"capacity\": 200,\n    \"organizerId\": \"uuid\",\n    \"organizer\": { \"id\": \"uuid\", \"email\": \"organizer@example.com\" },\n    \"_count\": { \"registrations\": 0 }\n  }\n}"
+            },
+            {
+              "name": "400 Missing fields",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"message\": \"title, description, date, and capacity are required\"\n}"
+            },
+            {
+              "name": "403 Not organizer",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "body": "{\n  \"message\": \"Forbidden: insufficient role\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Summit 2026 – Updated\",\n  \"capacity\": 250\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "{{eventId}}"]
+            },
+            "description": "ORGANIZER only. Partial update — send only the fields to change. Must be the event owner."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"event\": { \"...updated fields\" }\n}"
+            },
+            {
+              "name": "403 Not event owner",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "body": "{\n  \"message\": \"Forbidden: not your event\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "{{eventId}}"]
+            },
+            "description": "ORGANIZER only. Deletes the event. All registered users receive a cancellation notification. Registrations are cascade-deleted."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"message\": \"Event deleted\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Registrations",
+      "item": [
+        {
+          "name": "My Registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations", "my"]
+            },
+            "description": "Any authenticated user. Returns all events the logged-in user is registered for."
+          },
+          "response": []
+        },
+        {
+          "name": "Register for Event",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"{{eventId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations"]
+            },
+            "description": "USER only. Register the logged-in user for the specified event. Returns 409 if already registered or event is at capacity. Sends a notification to the organizer."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"registration\": {\n    \"id\": \"uuid\",\n    \"eventId\": \"uuid\",\n    \"userId\": \"uuid\",\n    \"createdAt\": \"2026-03-11T00:00:00.000Z\",\n    \"event\": { \"id\": \"uuid\", \"title\": \"Tech Summit 2026\" }\n  },\n  \"registrationCount\": 1\n}"
+            },
+            {
+              "name": "409 Already registered",
+              "status": "Conflict",
+              "code": 409,
+              "header": [],
+              "body": "{\n  \"message\": \"Already registered for this event\"\n}"
+            },
+            {
+              "name": "409 At capacity",
+              "status": "Conflict",
+              "code": 409,
+              "header": [],
+              "body": "{\n  \"message\": \"Event is at full capacity\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancel Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations", "{{eventId}}"]
+            },
+            "description": "USER only. Cancel the logged-in user's registration for the given eventId."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"message\": \"Registration cancelled\",\n  \"registrationCount\": 0\n}"
+            },
+            {
+              "name": "404 Not registered",
+              "status": "Not Found",
+              "code": 404,
+              "header": [],
+              "body": "{\n  \"message\": \"Registration not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Any authenticated user. Returns all notifications for the logged-in user, unread first."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"notifications\": [\n    {\n      \"id\": \"uuid\",\n      \"message\": \"user@example.com registered for \\\"Tech Summit 2026\\\".\",\n      \"isRead\": false,\n      \"createdAt\": \"2026-03-11T00:00:00.000Z\",\n      \"userId\": \"uuid\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/read-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "read-all"]
+            },
+            "description": "Mark all unread notifications as read for the logged-in user."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"message\": \"All notifications marked as read\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}", "read"]
+            },
+            "description": "Mark a single notification as read. Must belong to the logged-in user."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Simple liveness check. Returns 200 if the server is running."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"status\": \"ok\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
