@@ -9,6 +9,29 @@ Full‑stack event management dashboard with a React (Vite) frontend and an Expr
 - **API backend**: Node/Express server with Prisma ORM and PostgreSQL.
 - **Auth & security**: JWT-based authentication with password hashing (`bcryptjs`).
 
+---
+
+### Project Structure
+
+```bash
+event-management-dashboard/
+├─ backend/                # Express API + Prisma
+│  ├─ prisma/              # Prisma schema & migrations
+│  ├─ src/                 # Backend source (server, routes, controllers, services)
+│  ├─ package.json
+│  └─ ...                  # Other backend files/config
+├─ frontend/               # React + Vite dashboard
+│  ├─ src/                 # React components, pages, hooks, etc.
+│  ├─ public/
+│  ├─ index.html
+│  ├─ package.json
+│  └─ ...                  # Other frontend files/config
+├─ README.md
+└─ ...                     # Other root-level files (e.g. .gitignore, env samples)
+```
+
+---
+
 ### Tech Stack
 
 - **Frontend**: React 19, Vite, React Router, React Bootstrap, Axios
