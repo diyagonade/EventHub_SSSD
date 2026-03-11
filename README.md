@@ -154,4 +154,12 @@ event-management-dashboard/
 
 ---
 
+### Our Team
+Our Team consists of: 
+1. Sameer Lonare : Connect on <a href="https://github.com/sameer0221">Github</a>
+2. Diya D. Gonade : Connect on <a href="https://github.com/diyagonade">Github</a>
+3. Shreya Srivastava : Connect on <a href="https://github.com/ShreyaSrivastava27">Github</a>
+4. Samriddhi Paul : Connect on <a href="https://github.com/SamrPaul">Github</a>
+5. Shubhanshu Rawat : Connect on <a href="https://github.com/subhanshurawat99">Github</a>
+
 
